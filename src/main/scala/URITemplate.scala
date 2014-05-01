@@ -129,6 +129,7 @@ case object Explode extends Modifier
 object URITemplateParser {
   import util.parsing.combinator.RegexParsers
   import util.parsing.input.{CharSequenceReader}  
+  import scala.language.implicitConversions
   
   def parse(s:String):Either[String, URITemplate] = {
     val syntax = new URITemplateParsers
@@ -226,8 +227,8 @@ object URITemplateParser {
       ( %(0xE000,0xF8FF) | %(0xF0000,0xFFFFD) | %(0x100000,0x10FFFD) ) ^^ Unencoded
 
     lazy val anyChar = elem("anyChar", _ != 26.toChar)
-    def %(v:Int) = elem(v.toHexString.toUpperCase, _.intValue() == v)
-    def %(from:Int, to:Int) = elem(from.toHexString.toUpperCase+"-"+to.toHexString.toUpperCase, c => c.intValue() >= from && c.intValue() <= to)
+    def %(v:Int) = elem(v.toHexString.toUpperCase, (elem : Elem) => charWrapper(elem).intValue() == v)
+    def %(from:Int, to:Int) = elem(from.toHexString.toUpperCase+"-"+to.toHexString.toUpperCase, (c : Elem) => charWrapper(c).intValue() >= from && charWrapper(c).intValue() <= to)
   }
 }
 
